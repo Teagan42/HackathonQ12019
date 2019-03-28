@@ -2,7 +2,7 @@
 #define __BEATDETECTOR_H__
 
 #include <Arduino.h>
-//#include <avdweb_AnalogReadFast.h>
+#include <avdweb_AnalogReadFast.h>
 
 // Our Global Sample Rate, 5000hz
 #define SAMPLEPERIODUS 200
