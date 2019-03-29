@@ -81,7 +81,7 @@ int sMask[WIDTH][HEIGHT] = {
   {0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 1, 1, 1, 1, 0, 0},
   {0, 1, 1, 0, 0, 1, 1, 0},
-  {0, 1, 1, 1, 0, 0, 0, 0},
+  {0, 0, 1, 1, 0, 0, 0, 0},
   {0, 0, 0, 0, 1, 0, 0, 0},
   {0, 1, 1, 0, 0, 1, 1, 0},
   {0, 0, 1, 1, 1, 1, 0, 0},
@@ -189,6 +189,12 @@ void onReceive(IRCode code) {
       r -= 10;
       redraw = true;
       break;
+    case IRCode::two:
+      r = 255;
+      g = 0;
+      b = 0;
+      redraw = true;
+      break;
     case IRCode::three:
       r += 10;
       redraw = true;
@@ -197,12 +203,24 @@ void onReceive(IRCode code) {
       g -= 10;
       redraw = true;
       break;
+    case IRCode::five:
+      r = 0;
+      g = 255;
+      b = 0;
+      redraw = true;
+      break;
     case IRCode::six:
       g += 10;
       redraw = true;
       break;
     case IRCode::seven:
       b -= 10;
+      redraw = true;
+      break;
+    case IRCode::eight:
+      r = 0;
+      g = 0;
+      b = 255;
       redraw = true;
       break;
     case IRCode::nine:
