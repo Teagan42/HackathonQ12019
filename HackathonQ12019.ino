@@ -1,8 +1,11 @@
+#define FASTLED_ALLOW_INTERRUPTS 0
+
 #include <FastLED.h>
 #include <Arduino.h>
 //#include "BeatDetector.h"
 #include "LEDGrid.h"
 #include "IRCode.h"
+#include <Servo.h>
 
 #define MIC_PIN A5
 #define SERVO_PIN A4
@@ -89,12 +92,12 @@ int sMask[WIDTH][HEIGHT] = {
 };
 
 void setup() {
-  Serial.begin(115200);
-  while (!Serial);
-
   //  irReceiver.setup();
   irReceiver.enableIRIn();
-  moveServo();
+  servo.attach(SERVO_PIN);
+  servo.write(angle);
+  delay(100);
+  servo.detach();
 
   drawLogo();
 
@@ -104,7 +107,6 @@ void setup() {
 void loop() {
   decode_results results;
   if (irReceiver.decode(&results)) {
-    Serial.println(results.value);
     onReceive(results.value);
     irReceiver.resume();
   }
@@ -118,11 +120,10 @@ void loop() {
     return;
   }
   redraw = false;
-    drawLogo();
+  drawLogo();
 }
 
 void drawLogo() {
-  Serial.println("Drawing Logo");
   CRGB heartLEDs[NUM_LEDS];
   LEDGrid heartGrid(WIDTH, HEIGHT, true, heartLEDs);
   CRGB cLEDs[NUM_LEDS];
@@ -131,10 +132,10 @@ void drawLogo() {
   LEDGrid vGrid(WIDTH, HEIGHT, true, vLEDs);
   CRGB sLEDs[NUM_LEDS];
   LEDGrid sGrid(WIDTH, HEIGHT, true, sLEDs);
-  FastLED.addLeds<LED_TYPE, HEART_LED_PIN, COLOR_ORDER>(heartLEDs, NUM_LEDS);
-  FastLED.addLeds<LED_TYPE, C_LED_PIN, COLOR_ORDER>(cLEDs, NUM_LEDS);
-  FastLED.addLeds<LED_TYPE, V_LED_PIN, COLOR_ORDER>(vLEDs, NUM_LEDS);
-  FastLED.addLeds<LED_TYPE, S_LED_PIN, COLOR_ORDER>(sLEDs, NUM_LEDS);
+  CLEDController& heartCtl = FastLED.addLeds<LED_TYPE, HEART_LED_PIN, COLOR_ORDER>(heartLEDs, NUM_LEDS);
+  CLEDController& cCtl = FastLED.addLeds<LED_TYPE, C_LED_PIN, COLOR_ORDER>(cLEDs, NUM_LEDS);
+  CLEDController& vCtl = FastLED.addLeds<LED_TYPE, V_LED_PIN, COLOR_ORDER>(vLEDs, NUM_LEDS);
+  CLEDController& sCtl = FastLED.addLeds<LED_TYPE, S_LED_PIN, COLOR_ORDER>(sLEDs, NUM_LEDS);
   FastLED.clear();
 
   CRGB activeColor(r, g, b);
@@ -166,23 +167,34 @@ void drawLogo() {
   FastLED.show();
   FastLED.setBrightness(brightness);
   FastLED.clearData();
+  heartCtl.clearLedData();
+  heartCtl.clearLedData();
+  heartCtl.clearLedData();
+  heartCtl.clearLedData();
 }
 
 void moveServo() {
-  servo.attach(SERVO_PIN);
-  servo.write(angle);
-  delay(100);
-  servo.detach();
+    servo.attach(SERVO_PIN);
+    int current = servo.read();
+    int increment = 5;
+    if (current > angle) {
+      increment = -5;
+    }
+    for(int i = current; i != angle; i += increment) {
+      servo.write(i);
+      delay(40);
+    }
+    servo.detach();
 }
 
 void onReceive(IRCode code) {
   switch (code) {
     case IRCode::left:
-      angle -= 5;
+      angle -= 20;
       writeServo = true;
       break;
     case IRCode::right:
-      angle += 5;
+      angle += 20;
       writeServo = true;
       break;
     case IRCode::one:

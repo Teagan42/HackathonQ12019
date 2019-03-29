@@ -2,7 +2,6 @@
 #define __IR_CODE_H__
 
 #include <IRremote.h>
-#include <Servo.h>
 
 enum IRCode {
   up = 16621663,
@@ -24,19 +23,6 @@ enum IRCode {
   vol_up = 16597183,
 
   invalid = 4294967295
-};
-
-class IRReceiver {
-  public:
-    IRReceiver(int receiverPin, int servoPin);
-
-    void setup();
-    void loop();
-  private:
-    int receiverPin;
-    int servoPin;
-    IRrecv* receiver;
-    Servo* servo;
 };
 
 #endif
