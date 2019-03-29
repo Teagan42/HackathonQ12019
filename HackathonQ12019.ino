@@ -157,28 +157,28 @@ void drawLogo() {
   FastLED.show();
 }
 
-void onReceive(IRCode code) {
-  switch (code) {
-    case IRCode::up:
-      r = (r + 10) % 255;
-      break;
-    case IRCode::down:
-      r = (r - 10) % 255;
-      break;
-    case IRCode::left:
-      g = (g + 10) % 255;
-      break;
-    case IRCode::right:
-      g = (g - 10) % 255;
-      break;
-    case IRCode::one:
-      b = (b - 10) % 255;
-      break;
-    case IRCode::three:
-      b = (b + 10) % 255;
-      break;
-  }
-}
+//void onReceive(IRCode code) {
+//  switch (code) {
+//    case IRCode::up:
+//      r = (r + 10) % 255;
+//      break;
+//    case IRCode::down:
+//      r = (r - 10) % 255;
+//      break;
+//    case IRCode::left:
+//      g = (g + 10) % 255;
+//      break;
+//    case IRCode::right:
+//      g = (g - 10) % 255;
+//      break;
+//    case IRCode::one:
+//      b = (b - 10) % 255;
+//      break;
+//    case IRCode::three:
+//      b = (b + 10) % 255;
+//      break;
+//  }
+//}
 
 
 //

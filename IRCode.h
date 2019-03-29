@@ -2,6 +2,7 @@
 #define __IR_CODE_H__
 
 #include <IRremote.h>
+#include <Servo.h>
 
 enum IRCode {
   up = 16621663,
@@ -24,14 +25,15 @@ enum IRCode {
 
 class IRReceiver {
   public:
-    IRReceiver(int pin, void (*onReceive)(IRCode code));
+    IRReceiver(int receiverPin, int servoPin);
 
     void setup();
     void loop();
   private:
-    int pin;
+    int receiverPin;
+    int servoPin;
     IRrecv* receiver;
-    void (*onReceive)(IRCode code);
+    Servo* servo;
 };
 
 #endif
