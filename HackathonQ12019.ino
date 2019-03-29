@@ -4,7 +4,8 @@
 #include "LEDGrid.h"
 #include "IRCode.h"
 
-#define MIC_PIN A2
+#define MIC_PIN A5
+#define SERVO_PIN A4
 #define HEART_LED_PIN 5
 #define C_LED_PIN 6
 #define V_LED_PIN 9
@@ -31,6 +32,7 @@
 //void onReceive(IRCode code);
 //IRReceiver irReceiver(IR_PIN, onReceive);
 IRrecv irReceiver(IR_PIN);
+Servo servo;
 
 #define WIDTH 8
 #define HEIGHT 8
@@ -39,7 +41,9 @@ IRrecv irReceiver(IR_PIN);
 int r = 100;
 int g = 100;
 int b = 100;
+int angle = 90;
 boolean redraw = true;
+boolean writeServo = false;
 
 int heartMask[WIDTH][HEIGHT] = {
   {0, 0, 0, 0, 0, 0, 0, 0},
@@ -89,10 +93,8 @@ void setup() {
 
   //  irReceiver.setup();
   irReceiver.enableIRIn();
-
-  Serial.println("Initializing LEDs");
-
-
+  servo.attach(SERVO_PIN);
+  servo.write(90);
 
   //  beatDetector.setup();
 }
@@ -103,7 +105,11 @@ void loop() {
     Serial.println(results.value, HEX);
     onReceive(results.value);
     irReceiver.resume();
-    redraw = true;
+  }
+
+  if (writeServo) {
+    servo.write(angle);
+    writeServo = false;
   }
 
   if (!redraw) {
@@ -127,7 +133,6 @@ void drawLogo() {
   FastLED.addLeds<LED_TYPE, C_LED_PIN, COLOR_ORDER>(cLEDs, NUM_LEDS);
   FastLED.addLeds<LED_TYPE, V_LED_PIN, COLOR_ORDER>(vLEDs, NUM_LEDS);
   FastLED.addLeds<LED_TYPE, S_LED_PIN, COLOR_ORDER>(sLEDs, NUM_LEDS);
-  FastLED.setBrightness(100);
   FastLED.clear();
 
   CRGB activeColor(r, g, b);
@@ -157,30 +162,43 @@ void drawLogo() {
     }
   }
   FastLED.show();
+  FastLED.setBrightness(100);
+  FastLED.clearData();
 }
 
-//void onReceive(IRCode code) {
-//  switch (code) {
-//    case IRCode::up:
-//      r = (r + 10) % 255;
-//      break;
-//    case IRCode::down:
-//      r = (r - 10) % 255;
-//      break;
-//    case IRCode::left:
-//      g = (g + 10) % 255;
-//      break;
-//    case IRCode::right:
-//      g = (g - 10) % 255;
-//      break;
-//    case IRCode::one:
-//      b = (b - 10) % 255;
-//      break;
-//    case IRCode::three:
-//      b = (b + 10) % 255;
-//      break;
-//  }
-//}
+void onReceive(IRCode code) {
+  switch (code) {
+    case IRCode::up:
+      r += 10;
+      redraw = true;
+      break;
+    case IRCode::down:
+      r -= 10;
+      redraw = true;
+      break;
+    case IRCode::left:
+      angle -= 5;
+      writeServo = true;
+      break;
+    case IRCode::right:
+      angle += 5;
+      writeServo = true;
+      break;
+    case IRCode::one:
+      b -= 10;
+      redraw = true;
+      break;
+    case IRCode::three:
+      b += 10;
+      redraw = true;
+      break;
+  }
+
+  r = constrain(r, 0, 255);
+  g = constrain(g, 0, 255);
+  b = constrain(b, 0, 255);
+  angle = constrain(angle, 0, 180);
+}
 
 
 //
