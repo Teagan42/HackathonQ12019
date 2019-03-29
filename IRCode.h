@@ -20,6 +20,9 @@ enum IRCode {
   nine = 16603303,
   zero = 16593103,
   enter = 16617583,
+  vol_down = 16580863,
+  vol_up = 16597183,
+
   invalid = 4294967295
 };
 

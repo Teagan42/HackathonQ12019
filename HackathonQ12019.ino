@@ -38,11 +38,12 @@ Servo servo;
 #define HEIGHT 8
 #define NUM_LEDS (WIDTH * HEIGHT)
 
-int r = 100;
-int g = 100;
-int b = 100;
+int r = 255;
+int g = 0;
+int b = 0;
+int brightness = 40;
 int angle = 90;
-boolean redraw = true;
+boolean redraw = false;
 boolean writeServo = false;
 
 int heartMask[WIDTH][HEIGHT] = {
@@ -93,8 +94,9 @@ void setup() {
 
   //  irReceiver.setup();
   irReceiver.enableIRIn();
-  servo.attach(SERVO_PIN);
-  servo.write(90);
+  moveServo();
+
+  drawLogo();
 
   //  beatDetector.setup();
 }
@@ -102,13 +104,13 @@ void setup() {
 void loop() {
   decode_results results;
   if (irReceiver.decode(&results)) {
-    Serial.println(results.value, HEX);
+    Serial.println(results.value);
     onReceive(results.value);
     irReceiver.resume();
   }
 
   if (writeServo) {
-    servo.write(angle);
+    moveServo();
     writeServo = false;
   }
 
@@ -116,7 +118,7 @@ void loop() {
     return;
   }
   redraw = false;
-  drawLogo();
+    drawLogo();
 }
 
 void drawLogo() {
@@ -162,20 +164,19 @@ void drawLogo() {
     }
   }
   FastLED.show();
-  FastLED.setBrightness(100);
+  FastLED.setBrightness(brightness);
   FastLED.clearData();
+}
+
+void moveServo() {
+  servo.attach(SERVO_PIN);
+  servo.write(angle);
+  delay(100);
+  servo.detach();
 }
 
 void onReceive(IRCode code) {
   switch (code) {
-    case IRCode::up:
-      r += 10;
-      redraw = true;
-      break;
-    case IRCode::down:
-      r -= 10;
-      redraw = true;
-      break;
     case IRCode::left:
       angle -= 5;
       writeServo = true;
@@ -185,11 +186,35 @@ void onReceive(IRCode code) {
       writeServo = true;
       break;
     case IRCode::one:
-      b -= 10;
+      r -= 10;
       redraw = true;
       break;
     case IRCode::three:
+      r += 10;
+      redraw = true;
+      break;
+    case IRCode::four:
+      g -= 10;
+      redraw = true;
+      break;
+    case IRCode::six:
+      g += 10;
+      redraw = true;
+      break;
+    case IRCode::seven:
+      b -= 10;
+      redraw = true;
+      break;
+    case IRCode::nine:
       b += 10;
+      redraw = true;
+      break;
+    case IRCode::vol_down:
+      brightness -= 10;
+      redraw = true;
+      break;
+    case IRCode::vol_up:
+      brightness += 10;
       redraw = true;
       break;
   }
@@ -198,6 +223,7 @@ void onReceive(IRCode code) {
   g = constrain(g, 0, 255);
   b = constrain(b, 0, 255);
   angle = constrain(angle, 0, 180);
+  brightness = constrain(brightness, 0, 255);
 }
 
 
