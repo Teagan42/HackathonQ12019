@@ -30,21 +30,12 @@
 
 //void onReceive(IRCode code);
 //IRReceiver irReceiver(IR_PIN, onReceive);
-//IRrecv irReceiver(IR_PIN);
-//decode_results results;
+IRrecv irReceiver(IR_PIN);
 
 #define WIDTH 8
 #define HEIGHT 8
 #define NUM_LEDS (WIDTH * HEIGHT)
 
-CRGB heartLEDs[NUM_LEDS];
-LEDGrid heartGrid(WIDTH, HEIGHT, true, heartLEDs);
-CRGB cLEDs[NUM_LEDS];
-LEDGrid cGrid(WIDTH, HEIGHT, true, cLEDs);
-CRGB vLEDs[NUM_LEDS];
-LEDGrid vGrid(WIDTH, HEIGHT, true, vLEDs);
-CRGB sLEDs[NUM_LEDS];
-LEDGrid sGrid(WIDTH, HEIGHT, true, sLEDs);
 int r = 100;
 int g = 100;
 int b = 100;
@@ -97,27 +88,23 @@ void setup() {
   while (!Serial);
 
   //  irReceiver.setup();
-//  irReceiver.enableIRIn();
+  irReceiver.enableIRIn();
 
   Serial.println("Initializing LEDs");
 
-    FastLED.addLeds<LED_TYPE, HEART_LED_PIN, COLOR_ORDER>(heartLEDs, NUM_LEDS);
-  FastLED.addLeds<LED_TYPE, C_LED_PIN, COLOR_ORDER>(cLEDs, NUM_LEDS);
-  FastLED.addLeds<LED_TYPE, V_LED_PIN, COLOR_ORDER>(vLEDs, NUM_LEDS);
-  FastLED.addLeds<LED_TYPE, S_LED_PIN, COLOR_ORDER>(sLEDs, NUM_LEDS);
-  FastLED.setBrightness(100);
-  FastLED.clear();
+
 
   //  beatDetector.setup();
 }
 
 void loop() {
-//  if (irReceiver.decode(&results)) {
-//    Serial.println(results.value, HEX);
-//    onReceive(results.value);
-//    irReceiver.resume();
-//    redraw = true;
-//  }
+  decode_results results;
+  if (irReceiver.decode(&results)) {
+    Serial.println(results.value, HEX);
+    onReceive(results.value);
+    irReceiver.resume();
+    redraw = true;
+  }
 
   if (!redraw) {
     return;
@@ -128,15 +115,30 @@ void loop() {
 
 void drawLogo() {
   Serial.println("Drawing Logo");
+  CRGB heartLEDs[NUM_LEDS];
+  LEDGrid heartGrid(WIDTH, HEIGHT, true, heartLEDs);
+  CRGB cLEDs[NUM_LEDS];
+  LEDGrid cGrid(WIDTH, HEIGHT, true, cLEDs);
+  CRGB vLEDs[NUM_LEDS];
+  LEDGrid vGrid(WIDTH, HEIGHT, true, vLEDs);
+  CRGB sLEDs[NUM_LEDS];
+  LEDGrid sGrid(WIDTH, HEIGHT, true, sLEDs);
+  FastLED.addLeds<LED_TYPE, HEART_LED_PIN, COLOR_ORDER>(heartLEDs, NUM_LEDS);
+  FastLED.addLeds<LED_TYPE, C_LED_PIN, COLOR_ORDER>(cLEDs, NUM_LEDS);
+  FastLED.addLeds<LED_TYPE, V_LED_PIN, COLOR_ORDER>(vLEDs, NUM_LEDS);
+  FastLED.addLeds<LED_TYPE, S_LED_PIN, COLOR_ORDER>(sLEDs, NUM_LEDS);
+  FastLED.setBrightness(100);
+  FastLED.clear();
+
   CRGB activeColor(r, g, b);
   CRGB inactiveColor(0, 0, 0);
   for (int x = 0; x < WIDTH; x++) {
     for (int y = 0; y < HEIGHT; y++) {
-            if (heartMask[x][y] != 0) {
-                heartGrid.setPixel(x, y, activeColor);
-            } else {
-              heartGrid.setPixel(x, y, inactiveColor);
-            }
+      if (heartMask[x][y] != 0) {
+        heartGrid.setPixel(x, y, activeColor);
+      } else {
+        heartGrid.setPixel(x, y, inactiveColor);
+      }
       if (cMask[x][y] != 0) {
         cGrid.setPixel(x, y, activeColor);
       } else {
